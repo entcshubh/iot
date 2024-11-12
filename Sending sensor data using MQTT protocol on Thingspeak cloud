@@ -1,0 +1,57 @@
+//Sending sensor data using MQTT protocol on Thingspeak cloud
+
+import Adafruit_DHT
+import paho.mqtt.client as mqtt
+from time import sleep
+
+# ThingSpeak MQTT configuration
+MQTT_BROKER = "mqtt.thingspeak.com"
+MQTT_PORT = 1883
+CHANNEL_ID = "2715603"  # Your ThingSpeak Channel ID
+WRITE_API_KEY = "U6Y46MJ335UEXUC7"  # Your ThingSpeak Write API Key
+MQTT_USERNAME = "U6Y46MJ335UEXUC7"  # Same as your API Key
+MQTT_PASSWORD = ""  # Leave blank for ThingSpeak
+TOPIC = f"channels/{CHANNEL_ID}/publish/{WRITE_API_KEY}"
+
+# Sensor configuration
+SensorPin = 4
+
+# Initialize MQTT client
+client = mqtt.Client()
+client.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
+client.connect(MQTT_BROKER, MQTT_PORT)
+
+while True:
+    try:
+        print("Program is Running")
+        
+        # Read humidity and temperature from DHT11 sensor
+        humi, temp = Adafruit_DHT.read(Adafruit_DHT.DHT11, SensorPin)
+        
+        if humi is not None and temp is not None:
+            print("Humidity:", humi)
+            print("Temperature:", temp)
+            print("Data received")
+            
+            # Create the payload in ThingSpeak format
+            payload = f"field1={temp}&field2={humi}"
+            
+            # Publish data to ThingSpeak MQTT
+            result = client.publish(TOPIC, payload)
+            
+            # Check if the data was published successfully
+            status = result[0]
+            if status == 0:
+                print(f"Data sent to ThingSpeak: {payload}")
+            else:
+                print("Failed to send data to ThingSpeak")
+
+        else:
+            print("Failed to retrieve data from the sensor")
+        
+        # Wait for 5 seconds before the next reading
+        sleep(5)
+        
+    except Exception as e:
+        print("Error:", e)
+        sleep(5)
