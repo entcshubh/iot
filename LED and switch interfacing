@@ -1,0 +1,16 @@
+import RPi.GPIO as GPIO
+import time  # Import time module for delay
+
+GPIO.setmode(GPIO.BCM)  # Use BCM GPIO numbering
+GPIO.setup(14, GPIO.OUT)  # LED connected to GPIO 14 (Physical Pin 8)
+GPIO.setup(15, GPIO.IN)   # Push switch connected to GPIO 15 (Physical Pin 10)
+
+while True:
+    if GPIO.input(15):  # Check if the push switch is pressed
+        GPIO.output(14, GPIO.HIGH)  # Turn on the LED
+    else:
+        GPIO.output(14, GPIO.LOW)  # Turn off the LED
+    time.sleep(0.1)  # Add a small delay to avoid high CPU usage
+
+# Clean up will not be reached unless the process is manually stopped
+GPIO.cleanup()
