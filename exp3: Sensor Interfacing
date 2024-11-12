@@ -1,0 +1,67 @@
+// ----------------------PIR Sensor------------------------
+
+const int PIR_PIN = 2;      // PIR sensor output pin
+const int BUZZER_PIN = 8;   // Buzzer pin
+void setup() {
+  pinMode(PIR_PIN, INPUT);         // Set PIR pin as input
+  pinMode(BUZZER_PIN, OUTPUT);     // Set buzzer pin as output
+  digitalWrite(BUZZER_PIN, LOW);   // Initial state of the buzzer
+}
+void loop() {
+  int pirValue = digitalRead(PIR_PIN);  // Read PIR sensor state
+
+  if (pirValue == HIGH) {  // If motion is detected
+    digitalWrite(BUZZER_PIN, HIGH);  // Turn ON buzzer
+    delay(1000);  // Wait for 1 second
+    digitalWrite(BUZZER_PIN, LOW);   // Turn OFF buzzer
+  }
+
+  delay(100);  // Small delay for stability
+}
+
+
+
+
+//---------------------------LM35 Sensor-------------------------
+
+const int LM35_PIN = A0;  // LM35 analog output pin
+
+void setup() {
+  Serial.begin(9600);  // Start serial communication at 9600 baud
+}
+
+void loop() {
+  int lm35Value = analogRead(LM35_PIN);  // Read analog value from LM35
+  float temperature = (lm35Value * 5.0 / 1023.0) * 100;  // Convert to Celsius
+
+  // Display temperature on Serial Monitor
+  Serial.print("Temperature: ");
+  Serial.print(temperature);
+  Serial.println(" °C");
+
+  delay(1000);  // Wait for 1 second
+}
+
+
+
+//-------------------------IR Sensor:-----------------------
+
+const int IR_PIN = 3;  // IR sensor output pin
+
+void setup() {
+  pinMode(IR_PIN, INPUT);  // Set IR pin as input
+  Serial.begin(9600);  // Start serial communication at 9600 baud
+}
+
+void loop() {
+  int irValue = digitalRead(IR_PIN);  // Read IR sensor state
+
+  if (irValue == LOW) {  // Object detected (active LOW)
+    Serial.println("Object Detected!");
+  } else {
+    Serial.println("No Object Detected.");
+  }
+
+  delay(500);  // Small delay for stability
+}
+
