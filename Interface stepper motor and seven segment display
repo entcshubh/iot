@@ -1,0 +1,71 @@
+// Define motor pins
+const int motorPins[4] = {8, 9, 10, 11};  // Connect IN1, IN2, IN3, IN4 to these pins
+int stepDelay = 20;  // Delay between steps in milliseconds
+
+void setup() {
+  // Initialize motor pins as outputs
+  for (int i = 0; i < 4; i++) {
+    pinMode(motorPins[i], OUTPUT);
+    digitalWrite(motorPins[i], LOW);
+  }
+
+  // Start Serial Monitor for user input
+  Serial.begin(9600);
+  Serial.println("Select motor direction: a=anticlockwise, c=clockwise");
+}
+
+void loop() {
+  // Wait for user input from Serial Monitor
+  if (Serial.available() > 0) {
+    char motorDirection = Serial.read();
+
+    // Check motor direction
+    if (motorDirection == 'c') {
+      Serial.println("Motor running clockwise");
+      runMotor(true);  // Clockwise
+
+    } else if (motorDirection == 'a') {
+      Serial.println("Motor running anti-clockwise");
+      runMotor(false);  // Anti-clockwise
+
+    } else if (motorDirection == 'q') {
+      Serial.println("Motor stopped");
+      stopMotor();
+      while (true);  // Halt the program
+
+    } else {
+      Serial.println("Invalid input. Use a, c, or q.");
+    }
+  }
+}
+
+// Function to run the motor in specified direction
+void runMotor(bool clockwise) {
+  // Step sequence for 28BYJ-48 motor
+  int stepSequence[8][4] = {
+    {1, 0, 0, 1},
+    {1, 0, 0, 0},
+    {1, 1, 0, 0},
+    {0, 1, 0, 0},
+    {0, 1, 1, 0},
+    {0, 0, 1, 0},
+    {0, 0, 1, 1},
+    {0, 0, 0, 1}
+  };
+
+  // Run through the steps in the specified direction
+  for (int i = 0; i < 8; i++) {
+    int stepIndex = clockwise ? i : 7 - i;
+    for (int j = 0; j < 4; j++) {
+      digitalWrite(motorPins[j], stepSequence[stepIndex][j]);
+    }
+    delay(stepDelay);
+  }
+}
+
+// Function to stop the motor
+void stopMotor() {
+  for (int i = 0; i < 4; i++) {
+    digitalWrite(motorPins[i], LOW);
+  }
+}
