@@ -1,0 +1,106 @@
+// Bluetooth Communication between Raspberry Pi and Arduino
+
+
+Required Components
+1.	Raspberry Pi
+2.	Arduino Nano (or any other Arduino that has USB port on board)
+3.	Bluetooth USB dongle
+4.	SPP-CA Bluetooth serial module (hc-05) 
+
+
+
+//-------------------------------------------Source Code-----------------------------------------------
+
+int ledPin = 13;
+void setup() {
+  Serial.begin( 9600 );    // 9600 is the default baud rate for the serial Bluetooth module
+}
+void loop() {
+  // listen for the data
+  if ( Serial.available() > 0 ) {
+    // read a numbers from serial port
+    int count = Serial.parseInt();
+     // print out the received number
+    if (count > 0) {
+        Serial.print("You have input: ");
+        Serial.println(String(count));
+        // blink the LED
+        blinkLED(count);
+    }
+  }
+}
+void blinkLED(int count) {
+  for (int i=0; i< count; i++) {
+    digitalWrite(ledPin, HIGH);
+    delay(500);
+    digitalWrite(ledPin, LOW);
+    delay(500);
+  }
+}
+
+
+
+
+//---------------------------------------Raspberry Pi side-----------------------------
+
+1.	sudo apt-get update
+2.	sudo apt-get install bluetooth bluez-utils blueman 
+3.	hciconfig
+4.	hcitool scan
+
+
+
+The pairing can be done by running the following command
+
+
+5.	sudo bluez-simple-agent hci# xx:xx:xx:xx:xx:xx
+6.	sudo nano /etc/bluetooth/rfcomm.conf
+
+
+
+
+
+•	Append the following lines to the file: “rfcomm.conf” file
+
+
+rfcomm1 {
+    bind yes;
+    device xx:xx:xx:xx:xx:xx;
+    channel 1;
+    comment "Connection to Bluetooth serial module";
+}
+
+
+
+•	Here xx:xx:xx:xx:xx:xx is the address of Bluetooth module.
+Save the file and run this command: 
+
+1.	sudo rfcomm bind all
+
+
+//-------------------------------2.Python Code on Raspberry Pi----------------------------------------
+
+Save the content below as file  “bluetooth_serial_test.py”:
+#! /usr/bin/python
+import serial
+from time import sleep
+bluetoothSerial = serial.Serial( "/dev/rfcomm1", baudrate=9600 )
+count = None
+while count == None:
+    try:
+        count = int(raw_input( "Please enter the number of times to blink the L$
+    except:
+        pass    # Ignore any errors that may occur and try again
+bluetoothSerial.write( str(count) )
+print bluetoothSerial.readline()
+
+ 
+
+
+
+
+
+
+
+
+
